@@ -1,13 +1,23 @@
-import { sql } from "drizzle-orm";
-import { db } from "@/db";
+"use client";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { formAction } from "@/app/actions";
+import { SyntheticEvent, useState } from "react";
 
-export default async function Home() {
+export default function Home() {
+  const [state, setState] = useState("ready");
+  async function handleOnSubmit(event: SyntheticEvent) {
+    event.preventDefault();
+    if (state === "pending") return;
+    setState("pending");
+    const target = event.target as HTMLFormElement;
+    const formData = new FormData(target);
+    await formAction(formData);
+  }
+
   return (
     <main className="flex flex-col justify-center gap-6 max-w-5xl mx-auto py-12">
       <div>
@@ -16,7 +26,11 @@ export default async function Home() {
         </h1>
       </div>
 
-      <form action={formAction} className="flex flex-col gap-6 w-lg mx-auto">
+      <form
+        action={formAction}
+        onSubmit={handleOnSubmit}
+        className="flex flex-col gap-6 w-lg mx-auto"
+      >
         <div>
           <Label htmlFor="name" className="mb-2 font-semibold">
             Customer Name
